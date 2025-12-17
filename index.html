@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Paul M Martinez - Protocol</title>
+    <style>
+        /* --- THE DESIGN LAYER (Visuals based on your screenshots) --- */
+        body {
+            background-color: #e6e6e6; 
+            font-family: 'Georgia', serif; 
+            color: #1a1a1a;
+            text-align: center;
+            padding: 40px;
+            line-height: 1.6;
+        }
+
+        h1 {
+            font-size: 3em;
+            margin-bottom: 5px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        h2 {
+            font-size: 1.2em;
+            font-weight: normal;
+            color: #444;
+            margin-top: 0;
+        }
+
+        hr {
+            border: 0;
+            border-top: 1px solid #999;
+            margin: 40px auto;
+            width: 80%;
+        }
+
+        /* The Mission Section */
+        .mission-container {
+            text-align: left;
+            max-width: 700px;
+            margin: 0 auto 40px auto;
+        }
+
+        .mission-title {
+            font-size: 1.5em;
+            font-weight: bold;
+            border-left: 5px solid black; 
+            padding-left: 15px;
+            margin-bottom: 20px;
+        }
+
+        /* The White Box (The Generator) */
+        .generator-card {
+            background-color: white;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .generator-title {
+            font-weight: bold;
+            font-size: 1.3em;
+            margin-bottom: 10px;
+        }
+
+        /* Button Styling */
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        button {
+            background-color: white;
+            border: 2px solid black;
+            padding: 15px 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+            letter-spacing: 1px;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all 0.2s;
+            min-width: 120px;
+        }
+
+        button:hover {
+            background-color: black;
+            color: white;
+        }
+
+        button:active {
+            transform: scale(0.98); 
+        }
+
+        button:disabled {
+            border-color: #ccc;
+            color: #ccc;
+            background-color: #f9f9f9;
+            cursor: not-allowed;
+            pointer-events: none; 
+        }
+        
+        .active-miner {
+            background-color: black !important;
+            color: white !important;
+        }
+
+        /* The Money Display */
+        #asset-display {
+            margin-top: 30px;
+            font-size: 2em;
+            color: #1a5c20; 
+            font-weight: bold;
+            word-wrap: break-word; 
+            min-height: 1.6em; 
+        }
+
+        #counter-display {
+            font-family: 'Courier New', monospace;
+            font-size: 1.1em;
+            color: #666;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        
+        /* Transaction Log Styles */
+        .log-container {
+            margin-top: 30px;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+            text-align: left;
+        }
+        
+        .log-title {
+            font-size: 0.9em;
+            font-weight: bold;
+            color: #888;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        #transaction-log {
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+            color: #555;
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            height: 120px;
+            overflow-y: auto; /* Allows scrolling */
+            padding: 10px;
+            border-radius: 4px;
+        }
+
+        .log-entry {
+            margin-bottom: 4px;
+            border-bottom: 1px dashed #eee;
+        }
+        
+        .log-time {
+            color: #999;
+            margin-right: 10px;
+        }
+
+        footer {
+            margin-top: 50px;
+            font-size: 0.9em;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>PAUL M MARTINEZ</h1>
+    <h2>Architect of the Source Code</h2>
+
+    <hr>
+
+    <div class="mission-container">
+        <div class="mission-title">The Mission</div>
+        <p>I am building the intersection of AI, law, and digital identity. My goal is to construct systems that don't just run code, but generate value.</p>
+    </div>
+
+    <div class="generator-card">
+        <div class="generator-title">System Demo: Value Generator</div>
+        <p>Initialize protocol to generate assets.</p>
+
+        <div class="button-group">
+            <button onclick="executeProtocol()">EXECUTE</button>
+            <button id="auto-btn" onclick="startAutoMiner()">AUTO-MINER</button>
+            <button id="stop-btn" onclick="stopAutoMiner()">PAUSE</button>
+            <button id="withdraw-btn" onclick="withdrawAsset()">WITHDRAW</button>
+            <button onclick="resetSystem()">RESET</button>
+        </div>
+
+        <div id="asset-display"></div>
+        <div id="counter-display">Total Value: $0</div>
+
+        <div class="log-container">
+            <div class="log-title">Transaction Log</div>
+            <div id="transaction-log">
+                <div class="log-entry">
+                    <span class="log-time">--:--:--</span> System Ready.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        &copy; 2025 Paul M Martinez. All systems operational.
+    </footer>
+
+    <script>
+        // --- VARIABLE SETUP ---
+        let totalValue = 0;
+        let autoMinerInterval = null;
+
+        // --- SYSTEM STARTUP ---
+        const savedBalance = localStorage.getItem('paul_bank_balance');
+        if (savedBalance) {
+            totalValue = parseInt(savedBalance, 10);
+            updateVisuals(false); 
+            logTransaction("System re-initialized. Funds loaded.");
+        } else {
+            checkFunds(); 
+        }
+
+        // --- FUNCTION 1: ADD MONEY (MANUAL) ---
+        function executeProtocol() {
+            totalValue = totalValue + 1;
+            updateVisuals(true); 
+            
+            // Only log manual clicks to keep the log clean
+            if (!autoMinerInterval) {
+                logTransaction("Protocol Executed: +$1.00");
+            }
+            
+            saveData();
+        }
+
+        // --- FUNCTION 2: WITHDRAW MONEY ---
+        function withdrawAsset() {
+            if (totalValue > 0) {
+                totalValue = totalValue - 1;
+                
+                // Visual Removal
+                const assetContainer = document.getElementById('asset-display');
+                let text = assetContainer.innerText;
+                // Remove the last "$" symbol
+                assetContainer.innerText = text.substring(0, text.lastIndexOf("$ "));
+                
+                updateVisuals(false); 
+                logTransaction("Funds Withdrawn: -$1.00");
+                saveData();
+            }
+        }
+
+        // --- FUNCTION 3: AUTO-MINER ---
+        function startAutoMiner() {
+            if (autoMinerInterval) return;
+
+            const autoButton = document.getElementById('auto-btn');
+            autoButton.classList.add('active-miner');
+            autoButton.textContent = "MINING...";
+            autoButton.disabled = true;
+
+            logTransaction("Auto-Miner Activated.");
+            autoMinerInterval = setInterval(() => {
+                totalValue = totalValue + 1;
+                updateVisuals(true);
+                saveData();
+            }, 1000);
+        }
+
+        // --- FUNCTION 4: PAUSE ---
+        function stopAutoMiner() {
+            if (autoMinerInterval) {
+                clearInterval(autoMinerInterval);
+                autoMinerInterval = null;
+                logTransaction("Auto-Miner Paused.");
+            }
+
+            const autoButton = document.getElementById('auto-btn');
+            autoButton.classList.remove('active-miner');
+            autoButton.textContent = "AUTO-MINER";
+            autoButton.disabled = false;
+        }
+
+        // --- FUNCTION 5: RESET ---
+        function resetSystem() {
+            stopAutoMiner();
+            totalValue = 0;
+            localStorage.removeItem('paul_bank_balance');
+            
+            document.getElementById('asset-display').innerHTML = '';
+            document.getElementById('counter-display').innerText = "Total Value: $0";
+            
+            logTransaction("WARNING: System Reset. Funds Cleared.");
+            checkFunds(); 
+        }
+
+        // --- HELPER: LOGGING ---
+        function logTransaction(message) {
+            const logBox = document.getElementById('transaction-log');
+            const now = new Date();
+            const timeString = now.toLocaleTimeString(); 
+
+            // Create new entry
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.innerHTML = `<span class="log-time">${timeString}</span> ${message}`;
+
+            // Add to top of list
+            logBox.insertBefore(entry, logBox.firstChild);
+        }
+
+        // --- HELPER: VISUAL UPDATES ---
+        function updateVisuals(animate) {
+            const counterContainer = document.getElementById('counter-display');
+            counterContainer.innerText = "Total Value: $" + totalValue;
+
+            if (animate) {
+                const assetContainer = document.getElementById('asset-display');
+                // Performance Check: Limit symbols to 60 to prevent scrolling issues
+                if (assetContainer.innerText.length > 60) {
+                    assetContainer.innerText = "$ ";
+                } else {
+                    assetContainer.innerHTML += "$ ";
+                }
+            }
+            checkFunds();
+        }
+
+        function checkFunds() {
+            const withdrawBtn = document.getElementById('withdraw-btn');
+            if (totalValue <= 0) {
+                withdrawBtn.disabled = true; 
+            } else {
+                withdrawBtn.disabled = false; 
+            }
+        }
+
+        function saveData() {
+            localStorage.setItem('paul_bank_balance', totalValue);
+        }
+    </script>
+
+</body>
+</html>
